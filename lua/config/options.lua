@@ -54,3 +54,6 @@ vim.opt.mouse = "a" -- 所有模式下启用鼠标
 
 -- 补全设置
 vim.opt.completeopt = { "menu", "menuone", "noselect" } -- 补全选项
+
+-- 确保终端继承所有环境变量
+vim.g.terminal_env = "env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY"

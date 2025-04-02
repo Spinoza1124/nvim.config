@@ -3,13 +3,16 @@
 -- Add any additional keymaps here
 
 local function map(mode, lhs, rhs, opts)
-  opts = opts or {}
-  opts.silent = opts.silent ~= false
-  vim.keymap.set(mode, lhs, rhs, opts)
+    opts = opts or {}
+    opts.silent = opts.silent ~= false
+    vim.keymap.set(mode, lhs, rhs, opts)
 end
 
 -- 设置 leader 键为空格
 vim.g.mapleader = " "
+
+-- 修改退出键
+map("i", "jj", "<Esc>", { desc = "退出插入模式" })
 
 -- 更好的窗口导航
 map("n", "<C-h>", "<C-w>h", { desc = "跳转到左窗口" })
@@ -76,3 +79,14 @@ map("v", "L", "$", { desc = "跳转到行尾" })
 -- 快速插入常用文本
 map("n", "<leader>d", "o<Esc>", { desc = "在下方插入空行" })
 map("n", "<leader>D", "O<Esc>", { desc = "在上方插入空行" })
+
+-- 在浮动终端中启动GUI程序
+vim.keymap.set("n", "<leader>gg", function()
+    require("toggleterm").exec(
+        "go run mian.go &", -- 示例：替换为 go run main.go &
+        1,                  -- 窗口大小比例
+        20,                 -- 窗口高度
+        nil,                -- 窗口名称
+        "float"             -- 窗口类型
+    )
+end, { desc = "运行GUI程序" })
