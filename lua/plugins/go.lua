@@ -1,65 +1,106 @@
--- ~/.config/nvim/lua/plugins/go.lua
 return {
-  {
-    "neovim/nvim-lspconfig",
-    dependencies = {
-      "mfussenegger/nvim-lint",
-      "williamboman/mason-lspconfig.nvim",
+    {
+        "neovim/nvim-lspconfig",
+        dependencies = {
+            "williamboman/mason-lspconfig.nvim",
+            "mfussenegger/nvim-lint",
+        },
+        opts = {
+            servers = {
+                gopls = {
+                    settings = {
+                        gopls = {
+                            gofumpt = true,
+                            analyses = {
+                                unusedparams = true,
+                                shadow = true,
+                            },
+                            hints = {
+                                assignVariableTypes = true,
+                                compositeLiteralFields = true,
+                                constantValues = true,
+                                functionTypeParameters = true,
+                                parameterNames = true,
+                                rangeVariableTypes = true,
+                            },
+                            codelenses = {
+                                generate = true,
+                                gc_details = true,
+                                test = true,
+                                tidy = true,
+                            },
+                            experimentalPostfixCompletions = true,
+                            usePlaceholders = true,
+                            completeUnimported = true,
+                            staticcheck = true,
+                            semanticTokens = true,
+                        },
+                    },
+                    on_attach = function(client, bufnr)
+                        -- 高级保存操作：格式化+整理
+                        vim.api.nvim_create_autocmd("BufWritePre", {
+                            buffer = bufnr,
+                            callback = function()
+                                vim.lsp.buf.format({ async = false })
+                                vim.cmd(
+                                    "silent! lua vim.lsp.buf.code_action({ context = { only = { 'source.organizeImports' } }, apply = true })")
+                            end,
+                        })
+                    end,
+                }
+            }
+        }
     },
-    opts = {
-      -- 覆盖 Go 语言服务器的默认配置
-      servers = {
-        gopls = {
-          settings = {
-            gopls = {
-              analyses = { unusedparams = true },
-              staticcheck = true,
-              gofumpt = true,                                  -- 使用更严格的代码格式化
-              -- 指定使用 goimports 作为格式化工具
-              ["local"] = "github.com/Spinoza1124/calculator", -- 替换为你的模块路径
-              codelenses = {
-                generate = true,
-                gc_details = true,
-                test = true,
-              },
+
+    {
+        "ray-x/go.nvim",
+        dependencies = {
+            "ray-x/guihua.lua",
+            "neovim/nvim-lspconfig",
+        },
+        opts = {
+            -- 禁用内置格式化（使用conform.nvim）
+            goimports = false,
+            gofmt = false,
+            lsp = {
+                -- 继承主配置
+                on_attach = require("lspconfig").gopls.on_attach
             },
-          },
-          -- 在初始化时加载 goimports
-          on_attach = function(client, bufnr)
-            -- 保存时自动格式化
-            vim.api.nvim_create_autocmd("BufWritePre", {
-              buffer = bufnr,
-              callback = function()
-                vim.lsp.buf.format({ async = false })
-              end,
-            })
-          end,
+            -- 增强开发体验配置
+            trouble = true,
+            test_runner = "gotest",
+            dap_debug = true,
         },
-      },
+        event = { "CmdlineEnter" },
+        ft = { "go", "gomod" },
     },
-  },
-  {
-    "stevearc/conform.nvim",
-    opts = {
-      formatters_by_ft = {
-        go = { "goimports" }, -- 指定 Go 文件使用 goimports 格式化
-      },
+
+    {
+        "stevearc/conform.nvim",
+        opts = {
+            formatters = {
+                gofumpt = {
+                    command = "gofumpt",
+                    args = { "-extra" }
+                }
+            },
+            formatters_by_ft = {
+                go = { "gofumpt", "goimports" }, -- 使用gofumpt代替goimports
+            },
+        }
     },
-  },
-  {
-    "ray-x/go.nvim",
-    dependencies = { "ray-x/guihua.lua" },
-    config = function()
-      require("go").setup({
-        -- 禁用旧版 goimport
-        goimports = "goimports",
-        -- 启用更现代化的开发功能
-        lsp_inlay_hints = {
-          enable = true,
-        },
-      })
-    end,
-    event = { "CmdlineEnter" },
-    ft = { "go", "gomod" },
-  },
+
+    -- 确保安装必要工具
+    {
+        "williamboman/mason.nvim",
+        opts = {
+            ensure_installed = {
+                "gofumpt",
+                "goimports",
+                "golines",
+                "gopls",
+                "delve",
+            }
+        }
+    }
 }
