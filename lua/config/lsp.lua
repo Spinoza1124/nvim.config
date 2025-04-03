@@ -135,4 +135,3 @@ M.setup = function(server, opts)
 end
 
 return M
-
