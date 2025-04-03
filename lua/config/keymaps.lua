@@ -12,7 +12,7 @@ end
 vim.g.mapleader = " "
 
 -- 修改退出键
-map("i", "jj", "<Esc>", { desc = "退出插入模式" })
+-- map("i", "jj", "<Esc>", { desc = "退出插入模式" })
 
 -- 更好的窗口导航
 map("n", "<C-h>", "<C-w>h", { desc = "跳转到左窗口" })
